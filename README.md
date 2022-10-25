@@ -1,15 +1,15 @@
 # AutomationFramework
 
-Overview
+## Overview
 
 
-IDE Setup :
+## IDE Setup :
 1. Download and install Visual Studio IDE. Link : https://visualstudio.microsoft.com/vs/
 2. Download and install .NET Core 6 SDK. Link : https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 3. After installing Visual studio IDE and .NET Core 6, you will need to add Specflow plugin into your Visual studio IDE.
 Plugin can be added by clicking on Extensions -> Manage Extensions. Search for specflow and click install. You will need to reopen Visual studio IDE so the installation of the plugin can be finished.
 
-Configure run settings :
+## Configure run settings :
 1. Solution wide runsettings file can be configured by clicking on Test -> Configure Run Settings -> Select Solution Wide runsettings file. Select the test.runsettings file which can be found in the TestingProject folder.
 
 Runsettings file overview :
@@ -28,8 +28,11 @@ Runsetting file contains mandatory settings :
 2. Browser : name of the browser on which the testing will be performed (Can be Chrome, Firefox and Edge)
 3. MaximizeWindow : if set to true, browser window will be maximized
 
+## Create a folder in which the test case logs will be stored :
 
-Structure of the framework :
+If the "AutomationLogPath" parameter is set to "C:\AutomationLogs". You will need to create a folder called AutomationLogs on the C disk.
+
+## Structure of the framework :
 
 Framework contains 3 separate projects.
 
@@ -37,7 +40,7 @@ Framework contains 3 separate projects.
 2. UITesting
 3. TestingProject
 
-Shared Project
+## 1. Shared Project
 | Class  | Description |
 | ------------- | ------------- |
 | TCLogger  | Contains logging functionalites. Sets the log directory to the path of the AutomationLogPath parameter taken from the runsettings file. Sets the name of the txt file to its corresponding test case code and name. Name of the txt file will also include the date time in unix time converted to seconds.   |
@@ -55,7 +58,7 @@ Text can be added to the log by running the following :
 TCLogger.Log("Corresponding text.", "Name of the element on the UI");
 ```
 
-UITesting project
+## 2. UITesting project
 | Class  | Description |
 | ------------- | ------------- |
 | UITest  | Sets test case name and code to its corresponding values. Initializes the webdriver.|
@@ -79,4 +82,110 @@ Example of creating a new instance of the UITest :
 | WaitHelpers  |VerifyTextContains(IWebElement Element, string Text, int WaitTime = 5)| Verifies if the corresponding element contains given text using explicit wait. Returns bool.|
 | WaitHelpers  |GetElement(By SearchBy, int WaitTime = 10)| Using explicit wait, waits for the given element to be visible. Returns IWebElement.|
 | WaitHelpers  |Wait(int WaitTime)| Causes the current thread to suspend execution for a specified period of seconds.|
-    
+
+
+
+# Elements :
+
+1. MainElement class :
+MainElement class contains action and verification methods which can be used on multple Web Elements (such as buttons, textboxes, links etc..). Constructor of the MainElement class takes two parameters which are By SearchBy and string NameOfElement. SearchBy parameter determines using which locator the element will be searched by (eg. By.Id), NameOfElement determines the name of the given element (eg. Login).
+
+2. Type Classes :
+Type classes extend the MainElement class. Each WebElement has its own corresponding type class. Inside of the type classes we can write and add generic methods for actions and verifications which can be used only for the corresponding WebElement (eg. Table class will contain methods which can be used on a WebTable element).
+
+Example type class :
+```
+  public class Link : MainElement
+    {
+        public Link(By SearchBy, string NameOfElement) : base(SearchBy, NameOfElement)
+        {
+        }
+    }
+```
+
+# Action and verification methods :
+
+Example method used in the Table class :
+```
+        /// <summary>
+        /// Verifies if a column in table exists.
+        /// </summary>
+        /// <param name="ColumnName">Name of the column.</param>
+        /// <param name="Exists">If set to false, verifies that the column in table does not exist. It is true by default</param>
+        public void VerifyColumn(string ColumnName, bool Exists = true)
+        {
+            HeaderRow = GetHeaderRow();
+
+            List<IWebElement> Rows = HeaderRow.FindElements(By.TagName("th")).ToList();
+
+            if (Exists)
+            {
+                TCLogger.Log($"Verifying that the column '{ColumnName}' exists.", GetElementName());
+                Assert.IsTrue(Rows.Any(x => x.Text.Contains(ColumnName)));
+            }
+
+            else
+            {
+                TCLogger.Log($"Verifying that the column '{ColumnName}' does not exist.", GetElementName());
+                Assert.IsFalse(Rows.Any(x => x.Text.Contains(ColumnName)));
+            }
+
+        }
+```
+
+Each method contains a summary. Assertions are done by using Nunit. Every assertion or action in a method should be logged with a meaningful message. GetElementName() method returns the corresponding stack trace and the corresponding element name which will be logged.
+
+
+## 3. TestingProject project
+
+**Specflow :** 
+
+Test cases are written in Gherkin language. You can find out more about specflow on the following link : https://docs.specflow.org/projects/specflow/en/latest/
+
+
+**1. ExtendedElements folder** : 
+
+Contains extended type classes. Each WebElement will have its own Extended type class which extends its corresponding type class from the UITesting project (Eg. ButtonExtended class extends Button class). Purpose of extending type clasess is that its possible to write action and verification methods relevant to the current WebPage under test. It is possible to add non generic methods which will be used only for the current WebPage under test.
+
+Example of the extended type class :
+```
+     public class ButtonExtended : Button
+    {
+        public ButtonExtended(By SearchBy, string NameOfElement) : base(SearchBy, NameOfElement)
+        {
+        }
+    }
+```
+
+**2. Map folder** : 
+
+Is a page object model. It is used for storing all of the web elements. Contains several classes. Each class represents a page or a section of the WebPage under test. Each class contains corresponding elements relevant to that class (for example Login class will store web elements which are displayed only on the Login page.)
+
+**Mapping elements** :
+
+Element can be mapped by initializing a new Extended type. Declare the element by using the constructor that has two parameters, SearchBy and NameOfElement.
+For example if the element is a Button you will initialize a new ButtonExtended type. SearchBy represents a locator (a way to find the corresponding element on the web page), NameOfElement represents the name (if the element is a button the name would be "btnSearch").
+
+Example of initializing a new ButtonExtended type :
+```
+   public static ButtonExtended btnSearch = new ButtonExtended(By.ClassName("search-box-button"), "btnSearch");
+```
+
+**3. Hooks folder** : 
+
+Contains test setup and teardown methods.
+
+**MainHooks class** : 
+
+Contains before (setup) and after (teardown) scenario methods which are being used in all of the test cases. 
+
+**DemoWebShopHooks class** : 
+
+Contains test data and a setup used for DemoWebShop test cases. 
+
+**4. TestBook folder** : 
+
+Contains test Specflow and Glue folders. Inside the Specflow folder is a Features folder in which DemoWebShop feature file is stored. Glue folder contains bindings for the steps inside of the feature file.
+
+
+
