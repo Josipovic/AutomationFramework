@@ -24,7 +24,7 @@ namespace Shared
 
             else
             {
-                Console.WriteLine("Parameter {0} could not be found", ParameterName);
+                Console.WriteLine("Parameter {0} could not be found, or its empty.", ParameterName);
                 return null;
             }
 

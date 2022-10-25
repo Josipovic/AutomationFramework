@@ -4,5 +4,6 @@
     <Parameter name="AutomationLogPath" value="C:\AutomationLogs" />
     <Parameter name="Browser" value="Chrome" />
     <Parameter name="MaximizeWindow" value="true" />
+    <Parameter name="DriverVersion" value="Latest" />
   </TestRunParameters>
 </RunSettings>

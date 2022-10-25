@@ -14,9 +14,7 @@ namespace Shared.TestCaseLogger
         private static string FilePath = CurrentDirectory + "/" + Filename + DateTimeOffset.Now.ToUnixTimeSeconds().ToString() + ".log";
 
 
-
-
-        private void CheckIfDirectoryExists()
+        private static void CheckIfDirectoryExists()
         {
             if (!Directory.Exists(CurrentDirectory))
                 Directory.CreateDirectory(CurrentDirectory);
@@ -24,7 +22,7 @@ namespace Shared.TestCaseLogger
 
         public static void Log(string Message, string ElementName)
         {
-
+            CheckIfDirectoryExists();
             using (StreamWriter w = File.AppendText(FilePath))
             {
                 w.Write("{0}\t", ElementName);

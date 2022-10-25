@@ -17,11 +17,14 @@ namespace UITesting
     {
 
         public static IWebDriver WebDriver { get; set; }
-        public static DriverOptions DriverOptions { get; set; }
 
         private static void SetupConfig(IDriverConfig config, string Browser)
         {
-            new DriverManager().SetUpDriver(config);
+            string DriverVersion = Shared.Configuration.GetSettingsParameter("DriverVersion");
+
+            DriverVersion = DriverVersion != null ? DriverVersion : "Latest";
+
+            new DriverManager().SetUpDriver(config, version: DriverVersion);
 
             switch (Browser.ToLower())
             {
@@ -44,7 +47,7 @@ namespace UITesting
         public static void DriverSetup()
         {
             string Browser = Shared.Configuration.GetSettingsParameter("Browser");
-            string MaximizeWIndow = Shared.Configuration.GetSettingsParameter("MaximizeWindow").Equals("false") ? "false" : "true";
+            string MaximizeWIndow = Shared.Configuration.GetSettingsParameter("MaximizeWindow");
 
 
             if (Browser.ToLower().Equals("chrome".ToLower()))
@@ -58,7 +61,7 @@ namespace UITesting
 
             Console.WriteLine("Driver setup complete");
 
-            if (MaximizeWIndow.Equals("true"))
+            if (MaximizeWIndow.ToLower().Equals("true"))
                 WebDriver.Manage().Window.Maximize();
 
         }
