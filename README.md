@@ -20,6 +20,7 @@ Runsettings file overview :
     <Parameter name="AutomationLogPath" value="C:\AutomationLogs" />
     <Parameter name="Browser" value="Chrome" />
     <Parameter name="MaximizeWindow" value="true" />
+    <Parameter name="DriverVersion" value="Latest" />
   </TestRunParameters>
 </RunSettings>
 ```
@@ -27,10 +28,8 @@ Runsetting file contains mandatory settings :
 1. AutomationLogPath : path where you wish to save the test case logs (logs will be saved as a txt file)
 2. Browser : name of the browser on which the testing will be performed (Can be Chrome, Firefox and Edge)
 3. MaximizeWindow : if set to true, browser window will be maximized
+4. DriverVersion : sets the version of the driver, it is Latest by default. The driver version should be the same as the version of your browser.
 
-## Create a folder in which the test case logs will be stored :
-
-If the "AutomationLogPath" parameter is set to "C:\AutomationLogs". You will need to create a folder called AutomationLogs on the C disk.
 
 ## Structure of the framework :
 
