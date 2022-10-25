@@ -1,7 +1,7 @@
 # AutomationFramework
 
 ## Overview
-
+Framework used for UI testing.
 
 ## IDE Setup :
 1. Download and install Visual Studio IDE. Link : https://visualstudio.microsoft.com/vs/
